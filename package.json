@@ -1,0 +1,25 @@
+{
+  "name": "shopstore-backend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "ShopStore stock API for a fertiliser wholesale and retail counter.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "seed": "node src/seed.js",
+    "test": "node --test --test-timeout 120000 tests/stock.test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
+    "mongoose": "^8.19.1"
+  },
+  "devDependencies": {
+    "mongodb-memory-server": "^10.2.3"
+  }
+}
