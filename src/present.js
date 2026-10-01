@@ -13,6 +13,12 @@ export function presentProduct(doc) {
   const marginPerUnit = round2(doc.sp - doc.cp);
   const marginPercent =
     doc.cp > 0 ? round2((marginPerUnit / doc.cp) * 100) : null;
+  const stockQty = doc.stockQty;
+  const lowStock = stockQty <= doc.reorderLevel;
+  let stockStatus = "in_stock";
+  if (stockQty <= 0) stockStatus = "out_of_stock";
+  else if (lowStock) stockStatus = "low";
+
   return {
     id: String(doc._id),
     name: doc.name,
@@ -21,11 +27,12 @@ export function presentProduct(doc) {
     unit: doc.unit,
     cp: doc.cp,
     sp: doc.sp,
-    stockQty: doc.stockQty,
+    stockQty,
     reorderLevel: doc.reorderLevel,
     marginPerUnit,
     marginPercent,
-    lowStock: doc.stockQty <= doc.reorderLevel,
+    lowStock,
+    stockStatus,
   };
 }
 

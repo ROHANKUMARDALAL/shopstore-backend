@@ -2,6 +2,12 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import {
+  attachUser,
+  login,
+  requireAuth,
+  signup,
+} from "./auth.js";
+import {
   createCategory,
   createProduct,
   createPurchase,
@@ -44,6 +50,7 @@ export function createApp() {
   app.disable("x-powered-by");
   app.use(express.json());
   app.use(cors({ origin: corsOrigins() }));
+  app.use(attachUser);
 
   app.get("/health", (_req, res) => {
     const ready = mongoose.connection.readyState === 1;
@@ -53,6 +60,35 @@ export function createApp() {
       db: ready ? "connected" : "disconnected",
     });
   });
+
+  app.post(
+    "/api/auth/signup",
+    asyncHandler(async (req, res) => {
+      const result = await signup(req.body ?? {});
+      res.status(201).json(result);
+    }),
+  );
+
+  app.post(
+    "/api/auth/login",
+    asyncHandler(async (req, res) => {
+      const result = await login(req.body ?? {});
+      res.json(result);
+    }),
+  );
+
+  app.get(
+    "/api/auth/me",
+    asyncHandler(async (req, res) => {
+      if (!req.user) {
+        res.status(401).json({ error: "Sign in to use the stock book." });
+        return;
+      }
+      res.json({ user: req.user });
+    }),
+  );
+
+  app.use("/api", requireAuth);
 
   app.get(
     "/api/categories",

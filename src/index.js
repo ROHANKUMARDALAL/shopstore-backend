@@ -1,5 +1,6 @@
 import "dotenv/config";
 import mongoose from "mongoose";
+import { authRequired, seedDemoUser } from "./auth.js";
 import { createApp } from "./app.js";
 import { seedIfEmpty } from "./seed.js";
 
@@ -17,9 +18,16 @@ try {
   if (seed.seeded) {
     console.log("Seeded categories and products into an empty database.");
   }
+  const demo = await seedDemoUser();
+  if (demo.seeded) {
+    console.log(`Seeded demo counter login: ${demo.email}`);
+  }
   const app = createApp();
   app.listen(port, "0.0.0.0", () => {
     console.log(`ShopStore API listening on http://0.0.0.0:${port}`);
+    if (authRequired()) {
+      console.log("REQUIRE_AUTH is on. Stock routes need a Bearer token.");
+    }
   });
 } catch (error) {
   console.error("ShopStore API failed to start.", error);

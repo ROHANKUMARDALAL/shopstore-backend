@@ -12,3 +12,7 @@ services:
         sync: false
       - key: CORS_ORIGIN
         sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: REQUIRE_AUTH
+        value: "true"

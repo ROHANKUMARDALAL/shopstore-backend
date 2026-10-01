@@ -2,17 +2,38 @@
 
 Base URL: `http://127.0.0.1:43121`
 
-No login. No token. Every request that has a body uses header `Content-Type: application/json`.
+Every request that has a body uses header `Content-Type: application/json`.
+
+When the API is started with `REQUIRE_AUTH=true`, stock routes need header `Authorization: Bearer <token>` from signup or login. Signup and login stay open. Demo login after seed: `counter@shopstore.local` / `shopstore123`.
 
 Dates are shop dates, `YYYY-MM-DD`, on the Asia/Kolkata calendar. Omit `date` and the voucher is dated today. "Today" on the dashboard uses that same calendar.
 
 Copy an `id` from a list or create response into the next request. Product and category ids are MongoDB ids.
+
+## Auth first
+
+`POST http://127.0.0.1:43121/api/auth/signup`
+
+```json
+{
+  "name": "Rohan Counter",
+  "email": "rohan@shop.example",
+  "password": "shopstore123"
+}
+```
+
+Or `POST /api/auth/login` with `{ "email", "password" }`. Both return `{ "user", "token" }`. Put the token on later calls as `Authorization: Bearer <token>`.
+
+`GET /api/auth/me` returns the current user when the token is valid.
 
 ## What each route calls
 
 | Method and path | Function in `src/stock.js` | What it does to stock |
 | --- | --- | --- |
 | `GET /health` | none | Reports the process and whether MongoDB is connected. |
+| `POST /api/auth/signup` | `signup` in `src/auth.js` | Creates a user. No stock change. |
+| `POST /api/auth/login` | `login` in `src/auth.js` | Issues a token. No stock change. |
+| `GET /api/auth/me` | `userFromToken` in `src/auth.js` | Current user. |
 | `GET /api/categories` | `listCategories` | Lists categories, sorted by name. |
 | `POST /api/categories` | `createCategory` | Adds a category. Does not move stock. |
 | `GET /api/products` | `listProducts` | Lists products with CP, SP, qty, and margin. |

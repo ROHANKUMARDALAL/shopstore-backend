@@ -1,6 +1,6 @@
 # ShopStore API
 
-Stock book for a fertiliser wholesale and retail counter. It covers the stock work a shop otherwise keeps in Tally or Busy: categories, products, purchases, and sales. There is no login, no GST, and no ledger.
+Stock book for a fertiliser wholesale and retail counter. It covers the stock work a shop otherwise keeps in Tally or Busy: categories, products, purchases, and sales. Counter staff sign up or log in. There is no GST and no full ledger.
 
 Counter staff post vouchers. A purchase (stock in) increases quantity and stores that voucher rate as the product's latest cost price. A sale (stock out) decreases quantity and stores that voucher rate as the latest selling price. A sale cannot take more than the quantity on hand. Deleting a sale puts the quantity back. Deleting a purchase takes the quantity back only when it is still on hand.
 
@@ -26,11 +26,18 @@ npm run seed
 
 `CORS_ORIGIN` is the browser origin allowed to call the API. For the ShopStore counter use `http://127.0.0.1:43123`. Separate several origins with commas.
 
+Set `JWT_SECRET` before production. With `REQUIRE_AUTH=true`, every stock route needs header `Authorization: Bearer <token>` from signup or login. Signup and login stay open. Local tests leave `REQUIRE_AUTH` unset so the stock checks stay open.
+
+An empty database also gets a demo counter login: `counter@shopstore.local` / `shopstore123`.
+
 ### Routes
 
 | Method | Path | What it does |
 | --- | --- | --- |
 | GET | `/health` | Process is up. Reports whether MongoDB is connected. |
+| POST | `/api/auth/signup` | Create a counter user. Returns `{ user, token }`. |
+| POST | `/api/auth/login` | Sign in. Returns `{ user, token }`. |
+| GET | `/api/auth/me` | Current user from the Bearer token. |
 | GET, POST | `/api/categories` | List or add a category. |
 | GET, POST | `/api/products` | List or add a product (category, unit, CP, SP, opening qty). |
 | GET, POST | `/api/purchases` | List or post a stock-in voucher. |

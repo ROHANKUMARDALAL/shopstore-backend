@@ -315,4 +315,44 @@ test("seed loads five fertiliser categories and three products each, once", asyn
   const low = products.body.filter((row) => row.lowStock);
   assert.ok(low.some((row) => row.name.includes("Imidacloprid")));
   assert.ok(low.some((row) => row.name.includes("Potassium Nitrate")));
+  assert.ok(products.body.every((row) => ["in_stock", "low", "out_of_stock"].includes(row.stockStatus)));
+});
+
+test("signup and login issue a token that unlocks /api/auth/me", async () => {
+  const signup = await api("/api/auth/signup", {
+    method: "POST",
+    body: JSON.stringify({
+      name: "Test Counter",
+      email: "test.counter@shop.example",
+      password: "shopstore123",
+    }),
+  });
+  assert.equal(signup.status, 201);
+  assert.equal(signup.body.user.email, "test.counter@shop.example");
+  assert.ok(signup.body.token);
+
+  const me = await api("/api/auth/me", {
+    headers: { Authorization: `Bearer ${signup.body.token}` },
+  });
+  assert.equal(me.status, 200);
+  assert.equal(me.body.user.name, "Test Counter");
+
+  const login = await api("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({
+      email: "test.counter@shop.example",
+      password: "shopstore123",
+    }),
+  });
+  assert.equal(login.status, 200);
+  assert.ok(login.body.token);
+
+  const bad = await api("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({
+      email: "test.counter@shop.example",
+      password: "wrong-password",
+    }),
+  });
+  assert.equal(bad.status, 401);
 });
