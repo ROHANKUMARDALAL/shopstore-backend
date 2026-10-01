@@ -73,3 +73,5 @@ The first boot of an empty database loads the same opening book as `npm run seed
 Each category has three products with plausible INR counter rates (bags, litres, or packs). These are shop rates for the stock book, not a government price list.
 
 The coloured counter workflow is in `docs/shopstore-workflow.pdf`.
+
+Request bodies, sample responses, and the function behind each route are in `docs/postman.md`.
