@@ -94,6 +94,8 @@ const userSchema = new mongoose.Schema(
       unique: true,
     },
     passwordHash: { type: String, required: true },
+    resetCodeHash: { type: String, default: null },
+    resetCodeExpires: { type: Date, default: null },
   },
   { timestamps: true },
 );

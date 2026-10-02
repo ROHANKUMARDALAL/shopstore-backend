@@ -3,8 +3,11 @@ import cors from "cors";
 import mongoose from "mongoose";
 import {
   attachUser,
+  forgotPassword,
+  forgotUserId,
   login,
   requireAuth,
+  resetPassword,
   signup,
 } from "./auth.js";
 import {
@@ -74,6 +77,27 @@ export function createApp() {
     asyncHandler(async (req, res) => {
       const result = await login(req.body ?? {});
       res.json(result);
+    }),
+  );
+
+  app.post(
+    "/api/auth/forgot-userid",
+    asyncHandler(async (req, res) => {
+      res.json(await forgotUserId(req.body ?? {}));
+    }),
+  );
+
+  app.post(
+    "/api/auth/forgot-password",
+    asyncHandler(async (req, res) => {
+      res.json(await forgotPassword(req.body ?? {}));
+    }),
+  );
+
+  app.post(
+    "/api/auth/reset-password",
+    asyncHandler(async (req, res) => {
+      res.json(await resetPassword(req.body ?? {}));
     }),
   );
 

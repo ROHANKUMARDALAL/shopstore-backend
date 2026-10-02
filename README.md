@@ -37,6 +37,9 @@ An empty database also gets a demo counter login: `counter@shopstore.local` / `s
 | GET | `/health` | Process is up. Reports whether MongoDB is connected. |
 | POST | `/api/auth/signup` | Create a counter user. Returns `{ user, token }`. |
 | POST | `/api/auth/login` | Sign in. Returns `{ user, token }`. |
+| POST | `/api/auth/forgot-userid` | Look up email / user ID by counter name. |
+| POST | `/api/auth/forgot-password` | Issue a 6-digit reset code (returned for local shop use). |
+| POST | `/api/auth/reset-password` | Set a new password with email + reset code. |
 | GET | `/api/auth/me` | Current user from the Bearer token. |
 | GET, POST | `/api/categories` | List or add a category. |
 | GET, POST | `/api/products` | List or add a product (category, unit, CP, SP, opening qty). |

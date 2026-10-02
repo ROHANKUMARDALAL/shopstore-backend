@@ -356,3 +356,57 @@ test("signup and login issue a token that unlocks /api/auth/me", async () => {
   });
   assert.equal(bad.status, 401);
 });
+
+test("forgot user id and password reset recover a counter login", async () => {
+  const signup = await api("/api/auth/signup", {
+    method: "POST",
+    body: JSON.stringify({
+      name: "Recover Counter",
+      email: "recover.counter@shop.example",
+      password: "oldpass123",
+    }),
+  });
+  assert.equal(signup.status, 201);
+
+  const found = await api("/api/auth/forgot-userid", {
+    method: "POST",
+    body: JSON.stringify({ name: "Recover" }),
+  });
+  assert.equal(found.status, 200);
+  assert.equal(found.body.matches[0].email, "recover.counter@shop.example");
+
+  const forgot = await api("/api/auth/forgot-password", {
+    method: "POST",
+    body: JSON.stringify({ email: "recover.counter@shop.example" }),
+  });
+  assert.equal(forgot.status, 200);
+  assert.match(forgot.body.resetCode, /^\d{6}$/);
+
+  const reset = await api("/api/auth/reset-password", {
+    method: "POST",
+    body: JSON.stringify({
+      email: "recover.counter@shop.example",
+      resetCode: forgot.body.resetCode,
+      newPassword: "newpass123",
+    }),
+  });
+  assert.equal(reset.status, 200);
+
+  const oldLogin = await api("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({
+      email: "recover.counter@shop.example",
+      password: "oldpass123",
+    }),
+  });
+  assert.equal(oldLogin.status, 401);
+
+  const newLogin = await api("/api/auth/login", {
+    method: "POST",
+    body: JSON.stringify({
+      email: "recover.counter@shop.example",
+      password: "newpass123",
+    }),
+  });
+  assert.equal(newLogin.status, 200);
+});
