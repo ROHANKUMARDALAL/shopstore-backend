@@ -15,6 +15,8 @@ const productSchema = new mongoose.Schema(
       ref: "Category",
       required: true,
     },
+    hsnCode: { type: String, required: true, trim: true, unique: true },
+    gstRate: { type: Number, required: true, min: 0, max: 28, default: 18 },
     unit: { type: String, required: true, trim: true },
     cp: { type: Number, required: true, min: 0 },
     sp: { type: Number, required: true, min: 0 },
@@ -35,6 +37,11 @@ const purchaseLineSchema = new mongoose.Schema(
     },
     qty: { type: Number, required: true, min: 0 },
     cp: { type: Number, required: true, min: 0 },
+    hsnCode: { type: String, required: true, trim: true },
+    gstRate: { type: Number, required: true, min: 0, max: 28 },
+    taxable: { type: Number, required: true, min: 0 },
+    cgst: { type: Number, required: true, min: 0 },
+    sgst: { type: Number, required: true, min: 0 },
   },
   { _id: false },
 );
@@ -43,6 +50,9 @@ const purchaseSchema = new mongoose.Schema(
   {
     supplierName: { type: String, required: true, trim: true },
     date: { type: Date, required: true },
+    ewayBillNo: { type: String, trim: true, default: "" },
+    vehicleNo: { type: String, trim: true, default: "" },
+    transporterName: { type: String, trim: true, default: "" },
     lines: {
       type: [purchaseLineSchema],
       validate: {
@@ -64,6 +74,11 @@ const saleLineSchema = new mongoose.Schema(
     qty: { type: Number, required: true, min: 0 },
     sp: { type: Number, required: true, min: 0 },
     cpAtSale: { type: Number, required: true, min: 0 },
+    hsnCode: { type: String, required: true, trim: true },
+    gstRate: { type: Number, required: true, min: 0, max: 28 },
+    taxable: { type: Number, required: true, min: 0 },
+    cgst: { type: Number, required: true, min: 0 },
+    sgst: { type: Number, required: true, min: 0 },
   },
   { _id: false },
 );
@@ -72,6 +87,9 @@ const saleSchema = new mongoose.Schema(
   {
     customerShopName: { type: String, required: true, trim: true },
     date: { type: Date, required: true },
+    ewayBillNo: { type: String, trim: true, default: "" },
+    vehicleNo: { type: String, trim: true, default: "" },
+    transporterName: { type: String, trim: true, default: "" },
     lines: {
       type: [saleLineSchema],
       validate: {

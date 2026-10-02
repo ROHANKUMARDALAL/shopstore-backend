@@ -33,6 +33,8 @@ async function makeProduct(overrides = {}) {
     body: JSON.stringify({
       name: overrides.name || "Urea 46% N (Neem Coated)",
       category: category.body.id,
+      hsnCode: overrides.hsnCode || `31${String(Math.floor(Math.random() * 1e6)).padStart(6, "0")}`,
+      gstRate: overrides.gstRate ?? 5,
       unit: overrides.unit || "45 kg bag",
       cp: overrides.cp ?? 242,
       sp: overrides.sp ?? 266.5,
@@ -87,8 +89,10 @@ test("purchase increases stock and sets the latest cost price", async () => {
     }),
   });
   assert.equal(purchase.status, 201);
-  assert.equal(purchase.body.total, 5000);
+  assert.equal(purchase.body.taxableTotal, 5000);
+  assert.equal(purchase.body.total, 5250);
   assert.equal(purchase.body.lines[0].cp, 250);
+  assert.equal(purchase.body.lines[0].hsnCode, product.hsnCode);
 
   const products = await api("/api/products");
   assert.equal(products.body[0].stockQty, 30);
@@ -135,9 +139,11 @@ test("sale decreases stock, sets selling price, and shows margin", async () => {
     }),
   });
   assert.equal(sale.status, 201);
-  assert.equal(sale.body.total, 2160);
+  assert.equal(sale.body.taxableTotal, 2160);
+  assert.equal(sale.body.total, 2268);
   assert.equal(sale.body.margin, 160);
   assert.equal(sale.body.lines[0].cpAtSale, 250);
+  assert.equal(sale.body.lines[0].gstRate, 5);
 
   const products = await api("/api/products");
   assert.equal(products.body[0].stockQty, 22);
@@ -316,6 +322,40 @@ test("seed loads five fertiliser categories and three products each, once", asyn
   assert.ok(low.some((row) => row.name.includes("Imidacloprid")));
   assert.ok(low.some((row) => row.name.includes("Potassium Nitrate")));
   assert.ok(products.body.every((row) => ["in_stock", "low", "out_of_stock"].includes(row.stockStatus)));
+  assert.ok(products.body.every((row) => row.hsnCode && Number.isFinite(row.gstRate)));
+  const imid = products.body.find((row) => row.name.includes("Imidacloprid"));
+  assert.equal(imid.gstRate, 18);
+  assert.equal(imid.cgstRate, 9);
+  assert.equal(imid.sgstRate, 9);
+});
+
+test("sale stores HSN GST split and e-way bill fields", async () => {
+  const product = await makeProduct({
+    stockQty: 20,
+    hsnCode: "38089111",
+    gstRate: 18,
+    cp: 100,
+    sp: 150,
+  });
+  const sale = await api("/api/sales", {
+    method: "POST",
+    body: JSON.stringify({
+      customerShopName: "Mehta Seeds & Fertiliser",
+      date: todayKey(),
+      ewayBillNo: "EWB123456789012",
+      vehicleNo: "RJ14AB1234",
+      transporterName: "Local Tempo",
+      lines: [{ product: product.id, qty: 2, sp: 150 }],
+    }),
+  });
+  assert.equal(sale.status, 201);
+  assert.equal(sale.body.ewayBillNo, "EWB123456789012");
+  assert.equal(sale.body.lines[0].hsnCode, "38089111");
+  assert.equal(sale.body.lines[0].gstRate, 18);
+  assert.equal(sale.body.lines[0].cgst, 27);
+  assert.equal(sale.body.lines[0].sgst, 27);
+  assert.equal(sale.body.lines[0].taxable, 300);
+  assert.equal(sale.body.total, 354);
 });
 
 test("signup and login issue a token that unlocks /api/auth/me", async () => {

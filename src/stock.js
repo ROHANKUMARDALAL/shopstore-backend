@@ -1,6 +1,7 @@
 import { Category, Product, Purchase, Sale } from "./models.js";
 import { StockError } from "./errors.js";
 import { parseShopDate, round2, roundQty, todayRange } from "./dates.js";
+import { GST_RATE_OPTIONS, lineGst } from "./gst.js";
 import { presentProduct } from "./present.js";
 
 function requireText(value, label) {
@@ -83,9 +84,35 @@ export async function listCategories() {
   return Category.find().sort({ name: 1 });
 }
 
+function requireHsn(value) {
+  const hsnCode = requireText(value, "HSN code").replace(/\s+/g, "");
+  if (!/^\d{4,8}$/.test(hsnCode)) {
+    throw new StockError("HSN code must be 4 to 8 digits.");
+  }
+  return hsnCode;
+}
+
+function requireGstRate(value) {
+  const gstRate = requireNumber(value ?? 18, "GST rate");
+  if (!GST_RATE_OPTIONS.includes(gstRate)) {
+    throw new StockError(`GST rate must be one of ${GST_RATE_OPTIONS.join(", ")}.`);
+  }
+  return gstRate;
+}
+
+function ewayFields(body) {
+  return {
+    ewayBillNo: String(body.ewayBillNo ?? "").trim(),
+    vehicleNo: String(body.vehicleNo ?? "").trim(),
+    transporterName: String(body.transporterName ?? "").trim(),
+  };
+}
+
 export async function createProduct(body) {
   const name = requireText(body.name, "Product name");
   const unit = requireText(body.unit, "Unit");
+  const hsnCode = requireHsn(body.hsnCode);
+  const gstRate = requireGstRate(body.gstRate);
   const categoryId = String(body.category ?? "").trim();
   if (!categoryId) throw new StockError("Category is required.");
   const category = await Category.findById(categoryId);
@@ -106,9 +133,15 @@ export async function createProduct(body) {
   if (duplicate) {
     throw new StockError("This product is already in that category.", 409);
   }
+  const hsnTaken = await Product.findOne({ hsnCode });
+  if (hsnTaken) {
+    throw new StockError("That HSN code is already on another product.", 409);
+  }
   const product = await Product.create({
     name,
     category: category._id,
+    hsnCode,
+    gstRate,
     unit,
     cp,
     sp,
@@ -126,7 +159,8 @@ export async function createPurchase(body) {
   const supplierName = requireText(body.supplierName, "Supplier name");
   const date = parseShopDate(body.date);
   const lines = normalizeLines(body.lines, "cp");
-  await loadProducts(lines.map((line) => line.product));
+  const products = await loadProducts(lines.map((line) => line.product));
+  const eway = ewayFields(body);
 
   const applied = [];
   try {
@@ -149,11 +183,21 @@ export async function createPurchase(body) {
     return Purchase.create({
       supplierName,
       date,
-      lines: lines.map((line) => ({
-        product: line.product,
-        qty: line.qty,
-        cp: line.rate,
-      })),
+      ...eway,
+      lines: lines.map((line) => {
+        const product = products.get(line.product);
+        const gst = lineGst(line.qty, line.rate, product.gstRate);
+        return {
+          product: line.product,
+          qty: line.qty,
+          cp: line.rate,
+          hsnCode: product.hsnCode,
+          gstRate: gst.gstRate,
+          taxable: gst.taxable,
+          cgst: gst.cgst,
+          sgst: gst.sgst,
+        };
+      }),
     });
   } catch (error) {
     for (const row of applied.reverse()) {
@@ -222,6 +266,7 @@ export async function createSale(body) {
   const date = parseShopDate(body.date);
   const lines = normalizeLines(body.lines, "sp");
   const products = await loadProducts(lines.map((line) => line.product));
+  const eway = ewayFields(body);
   const demand = groupQty(lines);
   for (const [productId, qty] of demand) {
     const product = products.get(productId);
@@ -260,12 +305,22 @@ export async function createSale(body) {
     return Sale.create({
       customerShopName,
       date,
-      lines: lines.map((line) => ({
-        product: line.product,
-        qty: line.qty,
-        sp: line.rate,
-        cpAtSale: cpAtSale.get(line.product),
-      })),
+      ...eway,
+      lines: lines.map((line) => {
+        const product = products.get(line.product);
+        const gst = lineGst(line.qty, line.rate, product.gstRate);
+        return {
+          product: line.product,
+          qty: line.qty,
+          sp: line.rate,
+          cpAtSale: cpAtSale.get(line.product),
+          hsnCode: product.hsnCode,
+          gstRate: gst.gstRate,
+          taxable: gst.taxable,
+          cgst: gst.cgst,
+          sgst: gst.sgst,
+        };
+      }),
     });
   } catch (error) {
     for (const row of applied.reverse()) {

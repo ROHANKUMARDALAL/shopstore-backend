@@ -1,6 +1,6 @@
 # ShopStore API
 
-Stock book for a fertiliser wholesale and retail counter. It covers the stock work a shop otherwise keeps in Tally or Busy: categories, products, purchases, and sales. Counter staff sign up or log in. There is no GST and no full ledger.
+Stock book for a fertiliser wholesale and retail counter. It covers categories, products with unique HSN codes and per-product GST (CGST+SGST split), purchases, sales, and optional e-way bill fields. Counter staff sign up or log in. There is no full accounts ledger.
 
 Counter staff post vouchers. A purchase (stock in) increases quantity and stores that voucher rate as the product's latest cost price. A sale (stock out) decreases quantity and stores that voucher rate as the latest selling price. A sale cannot take more than the quantity on hand. Deleting a sale puts the quantity back. Deleting a purchase takes the quantity back only when it is still on hand.
 
@@ -42,10 +42,10 @@ An empty database also gets a demo counter login: `counter@shopstore.local` / `s
 | POST | `/api/auth/reset-password` | Set a new password with email + reset code. |
 | GET | `/api/auth/me` | Current user from the Bearer token. |
 | GET, POST | `/api/categories` | List or add a category. |
-| GET, POST | `/api/products` | List or add a product (category, unit, CP, SP, opening qty). |
-| GET, POST | `/api/purchases` | List or post a stock-in voucher. |
+| GET, POST | `/api/products` | List or add a product (HSN, GST %, category, unit, CP, SP, opening qty). |
+| GET, POST | `/api/purchases` | List or post a stock-in voucher (optional e-way bill / vehicle / transporter). |
 | DELETE | `/api/purchases/:id` | Reverse a purchase when stock still covers it. |
-| GET, POST | `/api/sales` | List or post a stock-out voucher. |
+| GET, POST | `/api/sales` | List or post a stock-out voucher (optional e-way bill / vehicle / transporter). |
 | DELETE | `/api/sales/:id` | Reverse a sale and restore stock. |
 | GET | `/api/dashboard` | Stock value at CP, stock value at SP, today's purchases, today's sales, gross margin, low stock. |
 

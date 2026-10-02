@@ -9,6 +9,8 @@ export const SEED_CATEGORIES = [
     products: [
       {
         name: "Urea 46% N (Neem Coated)",
+        hsnCode: "31021000",
+        gstRate: 5,
         unit: "45 kg bag",
         cp: 242,
         sp: 266.5,
@@ -17,6 +19,8 @@ export const SEED_CATEGORIES = [
       },
       {
         name: "Ammonium Sulphate 21% N",
+        hsnCode: "31022100",
+        gstRate: 5,
         unit: "50 kg bag",
         cp: 780,
         sp: 890,
@@ -25,6 +29,8 @@ export const SEED_CATEGORIES = [
       },
       {
         name: "Calcium Ammonium Nitrate",
+        hsnCode: "31026000",
+        gstRate: 5,
         unit: "50 kg bag",
         cp: 1080,
         sp: 1240,
@@ -38,6 +44,8 @@ export const SEED_CATEGORIES = [
     products: [
       {
         name: "Single Super Phosphate 16%",
+        hsnCode: "31031000",
+        gstRate: 5,
         unit: "50 kg bag",
         cp: 360,
         sp: 430,
@@ -46,6 +54,8 @@ export const SEED_CATEGORIES = [
       },
       {
         name: "DAP 18:46:0",
+        hsnCode: "31053000",
+        gstRate: 5,
         unit: "50 kg bag",
         cp: 1320,
         sp: 1350,
@@ -54,6 +64,8 @@ export const SEED_CATEGORIES = [
       },
       {
         name: "Rock Phosphate Powder",
+        hsnCode: "25102000",
+        gstRate: 5,
         unit: "50 kg bag",
         cp: 540,
         sp: 640,
@@ -67,6 +79,8 @@ export const SEED_CATEGORIES = [
     products: [
       {
         name: "Muriate of Potash 60% K",
+        hsnCode: "31042000",
+        gstRate: 5,
         unit: "50 kg bag",
         cp: 1680,
         sp: 1820,
@@ -75,6 +89,8 @@ export const SEED_CATEGORIES = [
       },
       {
         name: "Sulphate of Potash",
+        hsnCode: "31043000",
+        gstRate: 5,
         unit: "50 kg bag",
         cp: 2650,
         sp: 2980,
@@ -83,6 +99,8 @@ export const SEED_CATEGORIES = [
       },
       {
         name: "Potassium Nitrate 13:0:45",
+        hsnCode: "31059010",
+        gstRate: 12,
         unit: "25 kg bag",
         cp: 2100,
         sp: 2450,
@@ -96,6 +114,8 @@ export const SEED_CATEGORIES = [
     products: [
       {
         name: "NPK 10:26:26",
+        hsnCode: "31052010",
+        gstRate: 5,
         unit: "50 kg bag",
         cp: 1420,
         sp: 1580,
@@ -104,6 +124,8 @@ export const SEED_CATEGORIES = [
       },
       {
         name: "NPK 12:32:16",
+        hsnCode: "31052020",
+        gstRate: 5,
         unit: "50 kg bag",
         cp: 1475,
         sp: 1640,
@@ -112,6 +134,8 @@ export const SEED_CATEGORIES = [
       },
       {
         name: "NPK 20:20:0:13",
+        hsnCode: "31052030",
+        gstRate: 5,
         unit: "50 kg bag",
         cp: 1180,
         sp: 1320,
@@ -125,6 +149,8 @@ export const SEED_CATEGORIES = [
     products: [
       {
         name: "Chlorpyrifos 20% EC (insecticide)",
+        hsnCode: "38089122",
+        gstRate: 18,
         unit: "1 litre",
         cp: 265,
         sp: 320,
@@ -133,6 +159,8 @@ export const SEED_CATEGORIES = [
       },
       {
         name: "Mancozeb 75% WP (fungicide)",
+        hsnCode: "38089290",
+        gstRate: 18,
         unit: "1 kg",
         cp: 310,
         sp: 375,
@@ -141,6 +169,8 @@ export const SEED_CATEGORIES = [
       },
       {
         name: "Imidacloprid 17.8% SL (insecticide)",
+        hsnCode: "38089199",
+        gstRate: 18,
         unit: "250 ml",
         cp: 165,
         sp: 210,
